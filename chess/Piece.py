@@ -2,15 +2,17 @@
 Chess pieces file.
 """
 import pprint
-import numpy
 
 pp = pprint.PrettyPrinter()
 BOARD = [['{}{}'.format(file_, rank) for file_ in 'abcdefgh'] for rank in range(1, 9)]
+coordinate_map = {key: (row_index, col_index)
+                  for row_index, row in enumerate(BOARD) for col_index, key in enumerate(row)}
 
+print(coordinate_map)
 
 
 class Piece:
-    PIECES = 0
+    piece_count = 0
     PIECE_VALUES = {
         'pawn'  : 1,
         'knight': 3,
@@ -25,7 +27,7 @@ class Piece:
         self.value = value
         self.color = color
         self.position = position
-        Piece.PIECES += 1
+        Piece.piece_count += 1
 
     def valid_moves(self):
         raise NotImplementedError
@@ -42,10 +44,19 @@ class Knight(Piece):
         Knight.KNIGHTS += 1
         self.file, self.rank = position[0], position[1]
 
-    # def valid_moves(self):
 
+    def valid_moves(self):
+        row, col = coordinate_map[self.position]
+        print(BOARD[row + 2][col + 1])
+        # try:
+        # except IndexError:
+            # print("Your move is off the board")
 
-#file_rank_to_indices
+    def move(self, square):
+        row, col = coordinate_map[square]
+        BOARD[row][col] = 'N'
+
+# file_rank_to_indices
 
 knight = Knight('w', 'g1')
 knight2 = Knight('w', 'b1')
@@ -53,9 +64,13 @@ print(knight)
 print(knight.file, knight.rank)
 print(knight2)
 
-print(Piece.PIECES)
+print(Piece.piece_count)
 print(Knight.KNIGHTS)
 
 pp.pprint(BOARD)
-print(BOARD[0].index('g1'))
+# print(BOARD[0].index('g1'))
+print(knight.valid_moves())
+knight.move('f3')
+knight.move('g5')
+pprint.pprint(BOARD[::-1])
 # print(BOARD[row][col])
