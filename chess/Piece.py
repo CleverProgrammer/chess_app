@@ -1,5 +1,7 @@
 """
-Chess pieces file.
+Author: Rafeh Qazi.
+Modified: November 2016.
+Program: Chess.
 """
 import pprint
 import random
@@ -31,7 +33,7 @@ class Piece:
         self.value = self.PIECE_VALUES[self.name]
         self.id = '{}{}{}{}{}'.format(self.name[0], self.color, self.square, self.__class__.count, Piece.count)
         self.file, self.rank = square
-        self.occupied_squares[self.id] = self.square
+        self.occupied_squares[self.square] = self
 
         Piece.pieces.append(self)
         Piece.count += 1
@@ -39,11 +41,18 @@ class Piece:
     def valid_moves(self):
         raise NotImplementedError
 
-    def update_id(self):
-        self.id = '{}{}{}{}{}'.format(self.name[0], self.color, self.square, self.__class__.count, Piece.count)
+    def move(self, square):
+        if square in self.valid_moves():
+            previous_square = self.square
+            self.square = square
 
-    def get_new_id(self):
-        return '{}{}{}{}{}'.format(self.name[0], self.color, self.square, self.__class__.count, Piece.count)
+            # update the piece's key in occupied_squares.
+            self.occupied_squares[self.square] = self.occupied_squares.pop(previous_square)
+
+            # TODO: Fix line 118 accordingly.
+            self.occupied_squares[self.square] = self
+        else:
+            raise AssertionError("Not a valid move.")
 
     def __repr__(self):
         return '\'{}("{}", "{}")\''.format(self.name.title(), self.color, self.square)
@@ -105,20 +114,8 @@ class Knight(Piece):
             eight = None
 
         knight_moves = {one, two, three, four, five, six, seven, eight}
-        allowed_on_board_moves = {move for move in knight_moves if move is not None}
+        allowed_on_board_moves = {move for move in knight_moves if move and move not in self.occupied_squares}
         return allowed_on_board_moves
-
-    def move(self, square):
-        if square in self.valid_moves():
-            self.square = square
-
-            # update the piece's key in occupied_squares.
-            self.occupied_squares[self.get_new_id()] = self.occupied_squares.pop(self.id)
-
-            self.update_id()
-            self.occupied_squares[self.id] = self.square
-        else:
-            print("Not a valid move.")
 
 
 def simulate_moves(piece):
@@ -138,4 +135,14 @@ def simulate_moves(piece):
     pprint.pprint(play_board[::-1])
 
 
-simulate_moves(Knight('b1'))
+# simulate_moves(Knight('b1'))
+n2 = Knight('b1')
+n3 = Knight('c3')
+print(n2.valid_moves())
+print(n3.valid_moves())
+assert 'b1' not in n3.valid_moves()
+assert 'c3' not in n2.valid_moves()
+print(Piece.occupied_squares)
+n2.move('a3')
+print(n2)
+# Knight('b1')
